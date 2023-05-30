@@ -2,12 +2,14 @@ const express = require("express");
 const router = express.Router();
 const cardServiceModel = require("../../model/cards/cardServies");
 const cardsValidationServise = require("../../validation/cardsValidationServise");
+const normalizeCard = require("../../model/cards/helpers/normalizationCard");
 
 //http://localhost:8181/api/cards
 //created
 router.post("/", async (req, res) => {
   try {
     await cardsValidationServise.createCardValidation(req.body);
+    //let normalCard = await normalizeCard(req.body)
     const dataFromMongoose = await cardServiceModel.createCard(req.body);
     console.log("dataFromMongoose", dataFromMongoose);
     res.json({ msg: "card created!" });

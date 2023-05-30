@@ -7,7 +7,6 @@ const URL = {
 };
 const DEFAULT_STRING_SCHEMA = {
   type: String,
-  minLenght: 2,
   maxLenght: 256,
   trim: true,
 };
