@@ -9,8 +9,10 @@ router.get("/", (req, res) => {
   res.json({ msg: "sub rote" });
 });
 
-
+//http://localhost:8181/api/auth
 router.use("/auth", authRouter)
+
+//http://localhost:8181/api/cards
 router.use("/cards", cardsRouter)
 
 module.exports = router;
