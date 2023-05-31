@@ -42,7 +42,7 @@ const registerSchema = Joi.object({
     })
     .required(),
   isAdmin: Joi.boolean().allow(""),
-  isBusiness: Joi.boolean().required(),
+
 });
 
 const validateRegisterSchema = (userInput) =>
