@@ -1,23 +1,14 @@
-const config = require("config");
-const joiRegisterValidation = require("./joi/registerValidation");
-const joiLoginValidation = require("./joi/loginValidation");
+const joiReistersValidation = require("./joi/registerValidation");
 
-const validatorOption = config.get("validatorOption");
+const validatorOption = "Joi";
 
 const registerUserValidation = (userInput) => {
   if (validatorOption === "Joi") {
-    return joiRegisterValidation.validateRegisterSchema(userInput);
-  }
-  throw new Error("validator undefined");
-};
-const loginUserValidation = (userInput) => {
-  if (validatorOption === "Joi") {
-    return joiLoginValidation.validateLoginSchema(userInput);
+    return joiReistersValidation.validateRegisterSchema(userInput);
   }
   throw new Error("validator undefined");
 };
 
 module.exports = {
   registerUserValidation,
-  loginUserValidation,
 };
