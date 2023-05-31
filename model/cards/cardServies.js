@@ -1,11 +1,9 @@
 const Card = require("./Card");
-const normalizCard = require("./helpers/normalizationCard")
-
+const normalizCard = require("./helpers/normalizationCard");
 
 //created new card
 const createCard = async (cardToSave) => {
-  let normalCard =  await normalizCard( cardToSave,"6475d6dbdca2de4b30e421e1");
-  let card = new Card(normalCard);
+  let card = new Card(cardToSave);
   return card.save();
 };
 
@@ -29,7 +27,9 @@ const getCardByBizNumber = (bizNumber) => {
 };
 
 //update
-const updateCard = (id, cardToUpdate) => {
+const updateCard = async (id, cardToUpdate) => {
+     
+
   return Card.findByIdAndUpdate(id, cardToUpdate, {
     new: true,
   });

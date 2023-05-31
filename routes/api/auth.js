@@ -1,15 +1,27 @@
 const express = require("express");
+const bcrypt = require("../../config/bcrypt")
 const router = express.Router();
-
+const {validateRegisterSchema} = require("../../validation/joi/registerValidation")
 
 
 //http://localhost:8181/api/auth/register
-router.get("/register", (req, res) => {
-  res.json({ msg: "register" });
+router.post("/register", async (req, res) => {
+ try{
+
+const hashedPassword = await bcrypt.generateHash("123456");
+console.log(hashedPassword)
+
+ }catch(err){
+
+ }
 });
 //http://localhost:8181/api/auth/login
-router.get("/login", (req, res) => {
-  res.json({ msg: "login" });
+router.post("/login",async (req, res) => {
+try{
+
+}catch(err){
+
+}
 });
 
 

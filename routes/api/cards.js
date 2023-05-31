@@ -9,8 +9,8 @@ const normalizeCard = require("../../model/cards/helpers/normalizationCard");
 router.post("/", async (req, res) => {
   try {
     await cardsValidationServise.createCardValidation(req.body);
-    //let normalCard = await normalizeCard(req.body)
-    const dataFromMongoose = await cardServiceModel.createCard(req.body);
+    let normalCard = await normalizeCard(req.body, "6475d6dbdca2de4b30e421e1");
+    const dataFromMongoose = await cardServiceModel.createCard(normalCard);
     console.log("dataFromMongoose", dataFromMongoose);
     res.json({ msg: "card created!" });
   } catch (err) {
@@ -18,6 +18,33 @@ router.post("/", async (req, res) => {
     res.status(400).json(err);
   }
 });
+
+
+//http://localhost:8181/api/cards:id
+//update card
+router.put("/:id", async (req, res) => {
+  try {
+    await cardsValidationServise.createCardValidation(req.body);
+    let updatenormalCard = await normalizeCard(
+      req.body,
+      "6475d6dbdca2de4b30e421e1"
+    );
+    const updateCard = await cardServiceModel.updateCard(
+      req.params.id,
+      updatenormalCard
+    );
+    console.log("card find", updateCard);
+    if (updateCard) {
+      res.status(200).json({ msg: "update Card!" });
+    } else {
+      res.json({ msg: "could not find the card" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(400).json(err);
+  }
+});
+
 //http://localhost:8181/api/cards
 //get all
 router.get("/", async (req, res) => {
@@ -31,6 +58,7 @@ router.get("/", async (req, res) => {
     res.status(400).json(err);
   }
 });
+
 //http://localhost:8181/api/cards/:id
 //get card
 router.get("/:id", async (req, res) => {
@@ -62,24 +90,6 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-//http://localhost:8181/api/cards:id
-//update card
-router.put("/:id", async (req, res) => {
-  try {
-    const updateCard = await cardServiceModel.updateCard(
-      req.params.id,
-      req.body
-    );
-    console.log("card find", updateCard);
-    if (updateCard) {
-      res.status(200).json({ msg: "update Card!" });
-    } else {
-      res.json({ msg: "could not find the card" });
-    }
-  } catch (err) {
-    console.log(err);
-    res.status(400).json(err);
-  }
-});
+
 
 module.exports = router;
