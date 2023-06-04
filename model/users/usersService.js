@@ -5,7 +5,11 @@ const registerUser = (userData) => {
   return user.save();
 };
 
+const getUserByEmail = (email) => {
+  return User.findOne({ email });
+};
 
- module.exports = {
-    registerUser,
- }
+module.exports = {
+  registerUser,
+  getUserByEmail,
+};

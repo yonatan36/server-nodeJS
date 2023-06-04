@@ -1,4 +1,3 @@
 {
-    "dbconfig":{
-    
-}}
+  "jwtKey": "YourPrivateKeyVer3"
+}

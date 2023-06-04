@@ -3,6 +3,7 @@ const router = express.Router();
 const cardServiceModel = require("../../model/cards/cardServies");
 const cardsValidationServise = require("../../validation/cardsValidationServise");
 const normalizeCard = require("../../model/cards/helpers/normalizationCard");
+const usersServiceModel = require("../../model/users/usersService");
 
 //http://localhost:8181/api/cards
 //created
@@ -18,7 +19,6 @@ router.post("/", async (req, res) => {
     res.status(400).json(err);
   }
 });
-
 
 //http://localhost:8181/api/cards:id
 //update card
@@ -90,6 +90,30 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.patch("/card-likes/:id", async (req, res) => {
+  try {
+    const user = await usersServiceModel.getUserByEmail(req.body.email);
+    const cardId = req.params.id;
+    let card = await cardServiceModel.likesCard(cardId);
+    const cardLikes = card.likes.find(
+      (id) => id.toString() === user._id.toString()
+    );
 
+    if (!cardLikes) {
+      card.likes.push(user._id);
+    } else {
+      const cardFiltered = card.likes.filter(
+        (id) => id.toString() !== user._id.toString()
+      );
+      card.likes = cardFiltered;
+    }
+
+    card = await card.save();
+    return res.send(card);
+  } catch (error) {
+    console.log(chalk.redBright("Could not edit like:", error.message));
+    return res.status(500).send(error.message);
+  }
+});
 
 module.exports = router;

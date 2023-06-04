@@ -1,5 +1,4 @@
 const Card = require("./Card");
-const normalizCard = require("./helpers/normalizationCard");
 
 //created new card
 const createCard = async (cardToSave) => {
@@ -28,11 +27,22 @@ const getCardByBizNumber = (bizNumber) => {
 
 //update
 const updateCard = async (id, cardToUpdate) => {
-     
-
   return Card.findByIdAndUpdate(id, cardToUpdate, {
     new: true,
   });
+};
+
+
+//likes
+const likesCard = async (id, updateLike) => {
+  try {
+    const card = await Card.findOneAndUpdate({ _id: id }, updateLike, {
+      new: true,
+    });
+    return card;
+  } catch (error) {
+    throw new Error("Failed to retrieve card from the database");
+  }
 };
 
 module.exports = {
@@ -42,4 +52,5 @@ module.exports = {
   delateCard,
   updateCard,
   getCardByBizNumber,
+  likesCard,
 };

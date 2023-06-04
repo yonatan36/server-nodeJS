@@ -3,6 +3,7 @@ const generateBizNumber = require("./generateBizNumber");
 const normalizeCard = async (card, userId) => {
   if (!card.image) {
     card.image = {};
+ 
   }
   card.image = {
     url:
