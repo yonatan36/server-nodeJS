@@ -18,7 +18,6 @@ router.post("/register", async (req, res) => {
     req.body.password = await bcrypt.generateHash(req.body.password);
     req.body = normalizeUser(req.body);
     await usersServiceModel.registerUser(req.body);
-    res.json({ msg: "register!" });
     console.log(chalk.greenBright("register!"));
   } catch (err) {
     res.json(err).status(400);
@@ -31,16 +30,16 @@ router.post("/login", async (req, res) => {
     await loginUserValidation(req.body);
     const userData = await usersServiceModel.getUserByEmail(req.body.email);
     if (!userData) {
-      res.json({ msg: "invalid email and/or password" });
       console.log("invalid email or password");
+      throw new Error("invalid email and/or password");
     }
     const isPasswordMatch = await bcrypt.cmpHash(
       req.body.password,
       userData.password
     );
     if (!isPasswordMatch) {
-      res.json({ msg: "invalid email and/or password" });
       console.log("invalid email or password");
+      throw new Error("invalid email and/or password");
     }
     const token = await jwt.generateToken({
       _id: userData._id,
