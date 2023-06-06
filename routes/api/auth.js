@@ -7,6 +7,8 @@ const usersServiceModel = require("../../model/users/usersService");
 const chalk = require("chalk");
 const jwt = require("../../config/jwt");
 const CustomError = require("../../utils/CustomError");
+const permissionsMiddleware = require("../../middleware/permissionsMiddleware");
+const authmw = require("../../middleware/authMiddleware");
 
 //http://localhost:8181/api/auth/register
 router.post("/register", async (req, res) => {
@@ -22,6 +24,7 @@ router.post("/register", async (req, res) => {
     console.log(chalk.redBright(err.message));
   }
 });
+
 //http://localhost:8181/api/auth/login
 router.post("/login", async (req, res) => {
   try {
@@ -52,7 +55,7 @@ router.post("/login", async (req, res) => {
 });
 //http://localhost:8181/api/auth/:id
 //update user
-router.put("/:id", async (req, res) => {
+router.put("/:id", authmw, async (req, res) => {
   try {
     req.body = normalizeUser(req.body);
     await usersValidationServise.registerUserValidation(req.body);
@@ -73,41 +76,54 @@ router.put("/:id", async (req, res) => {
 
 //http://localhost:8181/api/auth/getUsers
 //get all users
-router.get("/getUsers", async (req, res) => {
-  try {
-    const getAll = await usersServiceModel.getUsers(req.body);
-    console.log(chalk.greenBright("getusers"));
-    res.send(getAll);
-  } catch (err) {
-    res.json(err).status(400);
-    console.log(chalk.redBright(err.message));
+router.get(
+  "/",
+  authmw,
+  permissionsMiddleware(false, true, false),
+  async (req, res) => {
+    try {
+      const getAll = await usersServiceModel.getUsers(req.body);
+      console.log(chalk.greenBright("getusers"));
+      res.send(getAll);
+    } catch (err) {
+      res.json(err).status(400);
+      console.log(chalk.redBright(err.message));
+    }
   }
-});
-
+);
 
 //http://localhost:8181/api/auth/:id
 //get user
-router.get("/:id", async (req, res) => {
-  try {
-    const getUser = await usersServiceModel.getUser(req.params.id);
-    res.send(getUser);
-  } catch (err) {
-    res.json(err).status(400);
-    console.log(chalk.redBright(err.message));
+router.get(
+  "/:id",
+  authmw,
+  permissionsMiddleware(false, true, false),
+  async (req, res) => {
+    try {
+      const getUser = await usersServiceModel.getUser(req.params.id);
+      res.send(getUser);
+    } catch (err) {
+      res.json(err).status(400);
+      console.log(chalk.redBright(err.message));
+    }
   }
-});
+);
 
 //http://localhost:8181/api/auth/:id
 //delete user
-router.delete("/:id", async (req, res) => {
-  try {
+router.delete(
+  "/:id",
+  authmw,
+  permissionsMiddleware(false, true, true),
+  async (req, res) => {
+    try {
       await usersServiceModel.deleteUser(req.params.id);
-    res.json("deleted user!");
-  } catch (err) {
-    res.json(err).status(400);
-    console.log(chalk.redBright(err.message));
+      res.json("deleted user!");
+    } catch (err) {
+      res.json(err).status(400);
+      console.log(chalk.redBright(err.message));
+    }
   }
-});
-
+);
 
 module.exports = router;
