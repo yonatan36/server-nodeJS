@@ -40,17 +40,17 @@ router.post("/login", async (req, res) => {
     );
     if (!isPasswordMatch) {
       console.log("invalid email or password");
-      throw new cos("invalid email and/or password");
+      throw new CustomError("invalid email and/or password");
     }
     const token = await jwt.generateToken({
       _id: userData._id,
       isAdmin: userData.isAdmin,
       isBusiness: userData.isBusiness,
     });
-    res.json(token);
+    res.status(200).send({"token":token});
   } catch (err) {
     res.status(400).json(err.message);
-    console.log(err);
+    console.log(err.message);
   }
 });
 //http://localhost:8181/api/auth/:id
@@ -59,22 +59,19 @@ router.put("/:id", authmw, async (req, res) => {
   try {
     req.body = normalizeUser(req.body);
     await usersValidationServise.registerUserValidation(req.body);
-    let updateNormalUser = await normalizeUser(
-      req.body,
-      "647c6c48855aa30f62f11a42"
-    );
+    let updateNormalUser = await normalizeUser(req.body, req.userData._id);
     const updateUser = await usersServiceModel.updateUser(
       req.params.id,
       updateNormalUser
     );
     res.send(updateUser);
   } catch (err) {
-    console.error(err);
+    console.log(err.message);
     res.status(400).json({ error: err.message });
   }
 });
 
-//http://localhost:8181/api/auth/getUsers
+//http://localhost:8181/api/auth
 //get all users
 router.get(
   "/",
@@ -83,7 +80,7 @@ router.get(
   async (req, res) => {
     try {
       const getAll = await usersServiceModel.getUsers(req.body);
-      console.log(chalk.greenBright("getusers"));
+      console.log(chalk.greenBright("get users"));
       res.send(getAll);
     } catch (err) {
       res.json(err).status(400);
@@ -118,7 +115,7 @@ router.delete(
   async (req, res) => {
     try {
       await usersServiceModel.deleteUser(req.params.id);
-      res.json("deleted user!");
+      res.json("deleted user!").status(200);
     } catch (err) {
       res.json(err).status(400);
       console.log(chalk.redBright(err.message));

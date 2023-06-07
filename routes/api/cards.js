@@ -3,10 +3,10 @@ const router = express.Router();
 const cardServiceModel = require("../../model/cards/cardServies");
 const cardsValidationServise = require("../../validation/cardsValidationServise");
 const normalizeCard = require("../../model/cards/helpers/normalizationCard");
-const usersServiceModel = require("../../model/users/usersService");
 const chalk = require("chalk");
 const permissionsMiddleware = require("../../middleware/permissionsMiddleware");
 const authmw = require("../../middleware/authMiddleware");
+
 //http://localhost:8181/api/cards
 //created
 router.post(
@@ -15,14 +15,13 @@ router.post(
   permissionsMiddleware(true, true, false),
   async (req, res) => {
     try {
-      await cardsValidationServise.createCardValidation(req.body);
-      let normalCard = await normalizeCard(
-        req.body,
-        "6475d6dbdca2de4b30e421e1"
+      const createCard = await cardsValidationServise.createCardValidation(
+        req.body
       );
-      const dataFromMongoose = await cardServiceModel.createCard(normalCard);
-      console.log("dataFromMongoose", dataFromMongoose);
-      res.json({ msg: "card created!" });
+      let normalCard = await normalizeCard(req.body, req.userData._id);
+      await cardServiceModel.createCard(normalCard);
+      console.log(chalk.greenBright("card created!"));
+      res.status(200).json(createCard);
     } catch (err) {
       console.log(err);
       res.status(400).json(err);
@@ -39,19 +38,15 @@ router.put(
   async (req, res) => {
     try {
       await cardsValidationServise.createCardValidation(req.body);
-      let updatenormalCard = await normalizeCard(
-        req.body,
-        "6475d6dbdca2de4b30e421e1"
-      );
+      let updatenormalCard = await normalizeCard(req.body, req.userData._id);
       const updateCard = await cardServiceModel.updateCard(
         req.params.id,
         updatenormalCard
       );
-      console.log("card find", updateCard);
       if (updateCard) {
-        res.status(200).json({ msg: "update Card!" });
-      } else {
-        res.json({ msg: "could not find the card" });
+        res.status(200).json(updateCard);
+        console.log(chalk.greenBright("card update!"));
+        res.json({ msg: "card update!" });
       }
     } catch (err) {
       console.log(err);
@@ -66,7 +61,7 @@ router.get("/", authmw, async (req, res) => {
   try {
     await cardsValidationServise.createCardValidation();
     const allCards = await cardServiceModel.getAllCards();
-    console.log("All cards", allCards);
+    console.log(chalk.greenBright("get all cards!"))
     res.status(200).json(allCards);
   } catch (err) {
     console.log(err);
@@ -76,11 +71,11 @@ router.get("/", authmw, async (req, res) => {
 
 //http://localhost:8181/api/cards/:id
 //get card
-router.get("/:id", async (req, res) => {
+router.get("/:id", authmw, async (req, res) => {
   try {
     await cardsValidationServise.createCardValidation();
     const findCardByiD = await cardServiceModel.getcardById(req.params.id);
-    console.log("card find", findCardByiD);
+    console.log(chalk.greenBright("get card!"))
     res.status(200).json(findCardByiD);
   } catch (err) {
     console.log(err);
@@ -97,11 +92,12 @@ router.delete(
   async (req, res) => {
     try {
       const deleteCard = await cardServiceModel.delateCard(req.params.id);
-      console.log("card find", deleteCard);
       if (deleteCard) {
-        res.status(200).json({ msg: "deleted Card!" });
+        res.status(200).send({ msg: "deleted Card!" });
+        console.log(chalk.greenBright("delted card"));
       } else {
         res.json({ msg: "could not find the card" });
+        console.log(chalk.redBright("could not find the card"));
       }
     } catch (err) {
       console.log(err);
@@ -109,6 +105,9 @@ router.delete(
     }
   }
 );
+
+//http://localhost:8181/api/cards/card-likes:id
+//likes card
 router.patch("/card-likes/:id", authmw, async (req, res) => {
   try {
     const user = req.userData;
@@ -120,15 +119,17 @@ router.patch("/card-likes/:id", authmw, async (req, res) => {
 
     if (!cardLikes) {
       card.likes.push(user._id);
+      console.log(chalk.greenBright("liked!"))
     } else {
       const cardFiltered = card.likes.filter((id) => id !== user._id);
       card.likes = cardFiltered;
+      console.log(chalk.greenBright("uNliked!"));
     }
 
     card = await card.save();
     return res.send(card);
   } catch (err) {
-    console.log(chalk.red("Card Like Error:"));
+    console.log(chalk.redBright("Card Like Error:"));
     console.error(err);
     res.status(400).json(err);
   }
