@@ -10,7 +10,16 @@ const loggersService = require("./utils/loggers/loggerServise");
 
 var app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://127.0.0.1:5500",
+      "http://localhost:3000",
+      "http://localhost:8181",
+    ],
+    optionsSuccessStatus: 200,
+  })
+);
 app.use(loggersService.logger); // Specify the "combined" format
 
 app.use(express.json());

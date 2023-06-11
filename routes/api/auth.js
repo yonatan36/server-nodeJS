@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("../../config/bcrypt");
 const router = express.Router();
 const usersValidationServise = require("../../validation/usersValidationServise");
+const idValidationServise = require("../../validation/idValidationService");
 const normalizeUser = require("../../model/users/helpers/normalizationUser");
 const usersServiceModel = require("../../model/users/usersService");
 const chalk = require("chalk");
@@ -14,11 +15,14 @@ const authmw = require("../../middleware/authMiddleware");
 router.post("/register", async (req, res) => {
   try {
     req.body = normalizeUser(req.body);
-    await usersValidationServise.registerUserValidation(req.body);
+    const register = await usersValidationServise.registerUserValidation(
+      req.body
+    );
     req.body.password = await bcrypt.generateHash(req.body.password);
     req.body = normalizeUser(req.body);
     await usersServiceModel.registerUser(req.body);
     console.log(chalk.greenBright("register!"));
+    res.json(register).status(200);
   } catch (err) {
     res.json(err).status(400);
     console.log(chalk.redBright(err.message));
@@ -47,7 +51,7 @@ router.post("/login", async (req, res) => {
       isAdmin: userData.isAdmin,
       isBusiness: userData.isBusiness,
     });
-    res.status(200).send({"token":token});
+    res.status(200).json({ token: token });
   } catch (err) {
     res.status(400).json(err.message);
     console.log(err.message);
@@ -55,21 +59,34 @@ router.post("/login", async (req, res) => {
 });
 //http://localhost:8181/api/auth/:id
 //update user
-router.put("/:id", authmw, async (req, res) => {
-  try {
-    req.body = normalizeUser(req.body);
-    await usersValidationServise.registerUserValidation(req.body);
-    let updateNormalUser = await normalizeUser(req.body, req.userData._id);
-    const updateUser = await usersServiceModel.updateUser(
-      req.params.id,
-      updateNormalUser
-    );
-    res.send(updateUser);
-  } catch (err) {
-    console.log(err.message);
-    res.status(400).json({ error: err.message });
+router.put(
+  "/:id",
+  authmw,
+
+  async (req, res) => {
+    try {
+      const id = req.params.id;
+      await idValidationServise.idValidation(id);
+      await usersValidationServise.registerUserValidation(req.body);
+      let updateNormalUser = await normalizeUser(req.body, req.userData._id);
+      const updateUser = await usersServiceModel.updateUser(
+        id,
+        updateNormalUser
+      );
+      res.status(200).json({
+        msg: `user - ${updateUser.name.firstName} ${updateUser.name.lastName} update!`,
+      });
+      console.log(
+        chalk.greenBright(
+          `user - ${updateUser.name.firstName} ${updateUser.name.lastName} update!`
+        )
+      );
+    } catch (err) {
+      console.log(err.message);
+      res.status(400).json({ error: err.message });
+    }
   }
-});
+);
 
 //http://localhost:8181/api/auth
 //get all users
@@ -80,8 +97,8 @@ router.get(
   async (req, res) => {
     try {
       const getAll = await usersServiceModel.getUsers(req.body);
-      console.log(chalk.greenBright("get users"));
-      res.send(getAll);
+      console.log(chalk.greenBright("get users!"));
+      res.json(getAll);
     } catch (err) {
       res.json(err).status(400);
       console.log(chalk.redBright(err.message));
@@ -94,11 +111,12 @@ router.get(
 router.get(
   "/:id",
   authmw,
-  permissionsMiddleware(false, true, false),
+  permissionsMiddleware(false, true, true),
   async (req, res) => {
     try {
       const getUser = await usersServiceModel.getUser(req.params.id);
-      res.send(getUser);
+      console.log(chalk.greenBright("get user!"));
+      res.json(getUser);
     } catch (err) {
       res.json(err).status(400);
       console.log(chalk.redBright(err.message));
@@ -114,8 +132,30 @@ router.delete(
   permissionsMiddleware(false, true, true),
   async (req, res) => {
     try {
-      await usersServiceModel.deleteUser(req.params.id);
-      res.json("deleted user!").status(200);
+      const id = req.params.id;
+      await idValidationServise.idValidation(id);
+      const dataFromDb = await usersServiceModel.deleteUser(id);
+      console.log(chalk.greenBright("user deleted!"));
+      res.json({
+        msg: `user - ${dataFromDb.name.firstName} ${dataFromDb.name.lastName} deleted`,
+      });
+    } catch (err) {
+      res.json(err).status(400);
+      console.log(chalk.redBright(err.message));
+    }
+  }
+);
+
+router.patch(
+  "/:id",
+  authmw,
+  permissionsMiddleware(true, true, true),
+  async (req, res) => {
+    try {
+      const id = req.params.id;
+      await idValidationServise.idValidation(id);
+      await usersServiceModel.updateBizUser(id);
+      res.json({ msg: "done" });
     } catch (err) {
       res.json(err).status(400);
       console.log(chalk.redBright(err.message));

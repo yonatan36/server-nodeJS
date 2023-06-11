@@ -1,11 +1,11 @@
 [
   {
     "name": {
-      "firstName": "john",
-      "lastName": "wich"
+      "firstName": "Admin",
+      "lastName": "user"
     },
     "phone": "0500000000",
-    "email": "john@gmail.com",
+    "email": "admin@gmail.com",
     "password": "Aa123456!",
     "address": {
       "country": "Israel",
@@ -17,11 +17,11 @@
   },
   {
     "name": {
-      "firstName": "john",
-      "lastName": "sinay"
+      "firstName": "normal",
+      "lastName": "user"
     },
     "phone": "0500000000",
-    "email": "johnsinay@gmail.com",
+    "email": "normal@gmail.com",
     "password": "Aa123456!",
     "address": {
       "country": "Israel",
@@ -32,11 +32,11 @@
   },
   {
     "name": {
-      "firstName": "kenny",
-      "lastName": "mc"
+      "firstName": "business",
+      "lastName": "user"
     },
     "phone": "0500000000",
-    "email": "kenny@gmail.com",
+    "email": "biz@gmail.com",
     "password": "Aa123456!",
     "address": {
       "country": "Israel",

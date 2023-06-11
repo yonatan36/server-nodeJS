@@ -32,7 +32,6 @@ const updateCard = async (id, cardToUpdate) => {
   });
 };
 
-
 //likes
 const likesCard = async (id, updateLike) => {
   try {
@@ -44,8 +43,12 @@ const likesCard = async (id, updateLike) => {
     throw new Error("Failed to retrieve card from the database");
   }
 };
+const myCards = (userId) => {
+  return Card.find({ user_id: userId });
+};
 
 module.exports = {
+  myCards,
   createCard,
   getAllCards,
   getcardById,

@@ -26,7 +26,19 @@ const getUser = (id) => {
 const deleteUser = (id) => {
   return User.findByIdAndDelete(id);
 };
+
+
+const updateBizUser = (id) => {
+  return User.findByIdAndUpdate(
+    id,
+    [{ $set: { isBusiness: { $not: "$isBusiness" } } }],
+    {
+      new: true,
+    }
+  );
+};
 module.exports = {
+  updateBizUser,
   registerUser,
   getUserByEmail,
   updateUser,

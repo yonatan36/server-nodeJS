@@ -1,14 +1,12 @@
 const CustomError = require("../utils/CustomError");
 const { getcardById } = require("../model/cards/cardServies");
-/*
-    TODO:
-        finish isBizSpecific
-*/
+
+
 
 const checkIfBizOwner = async (iduser, idcard, res, next) => {
   try {
-    //! joi the idcard
     const cardData = await getcardById(idcard);
+    
     if (!cardData) {
       return res.status(400).json({ msg: "card not found" });
     }
@@ -42,7 +40,9 @@ const permissionsMiddleware = (isBiz, isAdmin, isBizOwner) => {
     if (isBizOwner === req.userData.isBusiness && isBizOwner === true) {
       return checkIfBizOwner(req.userData._id, req.params.id, res, next);
     }
-    res.status(401).json({ msg: "you not allowed to edit/delete/create this card" });
+    res
+      .status(401)
+      .json({ msg: "you not allowed to /edit/delete/create this" });
   };
 };
 

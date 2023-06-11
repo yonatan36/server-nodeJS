@@ -1,6 +1,6 @@
 const joiReistersValidation = require("./joi/registerValidation");
 const joiLoginValidation = require("../validation/joi/loginValidation")
-
+const joiIdValidation = require("../validation/idValidationService")
 const validatorOption = "Joi";
 
 const registerUserValidation = (userInput) => {
@@ -16,7 +16,14 @@ const loginUserValidation = (userInput) => {
   throw new Error("validator undefined");
 };
 
+
+
+
+
+
+
 module.exports = {
   registerUserValidation,
-  loginUserValidation
+  loginUserValidation,
+
 };
