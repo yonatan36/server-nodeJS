@@ -4,7 +4,6 @@ const cardsValidationServise = require("../../validation/cardsValidationServise"
 const idValidationServise = require("../../validation/idValidationService");
 const cardAccessDataService = require("../../model/cards/models/cardAccessData");
 const normalizeCard = require("../../model/cards/helpers/normalizationCard");
-
 const chalk = require("chalk");
 const permissionsMiddleware = require("../../middleware/permissionsMiddleware");
 const authmw = require("../../middleware/authMiddleware");
@@ -47,10 +46,8 @@ router.put(
         id,
         updatenormalCard
       );
-      if (updateCard) {
-        res.status(200).json({ msg: `card - ${updateCard.title} update!` });
-        console.log(chalk.greenBright(`card - ${updateCard.title} update!`));
-      }
+      res.status(200).json({ msg: `card - ${updateCard.title} update!` });
+      console.log(chalk.greenBright(`card - ${updateCard.title} update!`));
     } catch (err) {
       res.status(400).json(err.message);
       console.log(err.message);
@@ -58,8 +55,32 @@ router.put(
   }
 );
 
+//http://localhost:8181/api/cards/my-cards
+//get my-cards
+router.get(
+  "/my-cards",
+  authmw,
+  permissionsMiddleware(false, false, true),
+  async (req, res) => {
+    try {
+      const userId = req.userData._id;
+      const userCards = await cardAccessDataService.myCards(userId);
+      console.log(chalk.greenBright("get my cards!"));
+      if (userCards == 0) {
+        res.json({ msg: "You don't have any cards you've created" });
+      } else {
+        res.json(userCards);
+      }
+    } catch (err) {
+      console.log(chalk.red("Failed to retrieve user cards:"));
+      console.error(err);
+      res.status(400).json(err);
+    }
+  }
+);
+
 //http://localhost:8181/api/cards
-//get all
+//get all cards
 router.get("/", authmw, async (req, res) => {
   try {
     await cardsValidationServise.createCardValidation();
@@ -142,19 +163,6 @@ router.patch("/card-likes/:id", authmw, async (req, res) => {
     console.log(chalk.redBright("Card Like Error:"));
     res.status(400).json(err.message);
     console.log(err.message);
-  }
-});
-
-router.get("/my-cards", authmw, async (req, res) => {
-  try {
-    const userId = req.userData._id;
-    const userCards = await cardAccessDataService.myCards(userId);
-
-    res.json(userCards);
-  } catch (err) {
-    console.log(chalk.red("Failed to retrieve user cards:"));
-    console.error(err);
-    res.status(400).json(err);
   }
 });
 

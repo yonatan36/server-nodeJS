@@ -22,7 +22,7 @@ router.post("/register", async (req, res) => {
     req.body.password = await bcrypt.generateHash(req.body.password);
     req.body = normalizeUser(req.body);
     await userAccessDataService.registerUser(req.body);
-    console.log(chalk.greenBright("register!"));
+    console.log(chalk.greenBright("register"));
     res.json(register).status(200);
   } catch (err) {
     res.json(err).status(400);
@@ -53,6 +53,7 @@ router.post("/login", async (req, res) => {
       isBusiness: userData.isBusiness,
     });
     res.status(200).json({ token: token });
+    console.log(chalk.greenBright("login"));
   } catch (err) {
     res.status(400).json(err.message);
     console.log(err.message);
@@ -63,14 +64,13 @@ router.post("/login", async (req, res) => {
 router.put(
   "/:id",
   authmw,
-  permissionsMiddleware(true, true, true),
+  permissionsMiddleware(false, false, true),
   async (req, res) => {
     try {
-      req.body.password = await bcrypt.generateHash(req.body.password);
       let updateNormalUser = await normalizeUser(req.body, req.userData._id);
       const id = req.params.id;
       await idValidationServise.idValidation(id);
-      await usersValidationServise.registerUserValidation(req.body);
+      await usersValidationServise.updateUserValidation(req.body);
       updateNormalUser = await normalizeUser(req.body, req.userData._id);
       const updateUser = await usersServiceModel.updateUser(
         id,
@@ -96,11 +96,11 @@ router.put(
 router.get(
   "/",
   authmw,
-  permissionsMiddleware(false, true, false),
+  permissionsMiddleware(true, false, false),
   async (req, res) => {
     try {
       const getAll = await userAccessDataService.getUsers(req.body);
-      console.log(chalk.greenBright("get users!"));
+      console.log(chalk.greenBright("get all users!"));
       res.json(getAll);
     } catch (err) {
       res.json(err).status(400);
@@ -114,7 +114,7 @@ router.get(
 router.get(
   "/:id",
   authmw,
-  permissionsMiddleware(false, true, true),
+  permissionsMiddleware(true, false, true),
   async (req, res) => {
     try {
       const getUser = await userAccessDataService.getUser(req.params.id);
@@ -132,7 +132,7 @@ router.get(
 router.delete(
   "/:id",
   authmw,
-  permissionsMiddleware(false, true, true),
+  permissionsMiddleware(false, false, true),
   async (req, res) => {
     try {
       const id = req.params.id;
@@ -152,13 +152,13 @@ router.delete(
 router.patch(
   "/:id",
   authmw,
-  permissionsMiddleware(true, true, true),
+  //  permissionsMiddleware(true, false, true),
   async (req, res) => {
     try {
       const id = req.params.id;
       await idValidationServise.idValidation(id);
       const updateUser = await userAccessDataService.updateBizUser(id);
-
+      console.log(chalk.greenBright("isBusiness update"));
       res.json(
         `${updateUser.name.firstName} ${updateUser.name.lastName}  isBusiness - ${updateUser.isBusiness}`
       );
