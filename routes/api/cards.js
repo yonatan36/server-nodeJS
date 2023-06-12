@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const cardServiceModel = require("../../model/cards/cardServies");
 const cardsValidationServise = require("../../validation/cardsValidationServise");
 const idValidationServise = require("../../validation/idValidationService");
+const cardAccessDataService = require("../../model/cards/models/cardAccessData");
 const normalizeCard = require("../../model/cards/helpers/normalizationCard");
+
 const chalk = require("chalk");
 const permissionsMiddleware = require("../../middleware/permissionsMiddleware");
 const authmw = require("../../middleware/authMiddleware");
@@ -20,7 +21,7 @@ router.post(
         req.body
       );
       let normalCard = await normalizeCard(req.body, req.userData._id);
-      await cardServiceModel.createCard(normalCard);
+      await cardAccessDataService.createCard(normalCard);
       console.log(chalk.greenBright("card created!"));
       res.status(200).json(createCard);
     } catch (err) {
@@ -42,12 +43,12 @@ router.put(
       await idValidationServise.idValidation(id);
       await cardsValidationServise.createCardValidation(req.body);
       let updatenormalCard = await normalizeCard(req.body, req.userData._id);
-      const updateCard = await cardServiceModel.updateCard(
+      const updateCard = await cardAccessDataService.updateCard(
         id,
         updatenormalCard
       );
       if (updateCard) {
-        res.status(200).json({msg:`card - ${updateCard.title} update!`});
+        res.status(200).json({ msg: `card - ${updateCard.title} update!` });
         console.log(chalk.greenBright(`card - ${updateCard.title} update!`));
       }
     } catch (err) {
@@ -62,7 +63,7 @@ router.put(
 router.get("/", authmw, async (req, res) => {
   try {
     await cardsValidationServise.createCardValidation();
-    const allCards = await cardServiceModel.getAllCards();
+    const allCards = await cardAccessDataService.getAllCards();
     console.log(chalk.greenBright("get all cards!"));
     res.status(200).json(allCards);
   } catch (err) {
@@ -78,7 +79,7 @@ router.get("/:id", authmw, async (req, res) => {
     const id = req.params.id;
     await cardsValidationServise.createCardValidation();
     await idValidationServise.idValidation(id);
-    const findCardByiD = await cardServiceModel.getcardById(id);
+    const findCardByiD = await cardAccessDataService.getcardById(id);
     console.log(chalk.greenBright("get card!"));
     res.status(200).json(findCardByiD);
   } catch (err) {
@@ -97,7 +98,7 @@ router.delete(
     try {
       const id = req.params.id;
       await idValidationServise.idValidation(id);
-      const dataFromDb = await cardServiceModel.delateCard(id);
+      const dataFromDb = await cardAccessDataService.deleteCard(id);
 
       console.log(chalk.greenBright(`card - ${dataFromDb.title} deleted!`));
       res.status(200).send({ msg: `card - ${dataFromDb.title} deleted!` });
@@ -118,24 +119,23 @@ router.patch("/card-likes/:id", authmw, async (req, res) => {
     const user = req.userData;
     const cardId = req.params.id;
 
-    let card = await cardServiceModel.likesCard(cardId);
+    let card = await cardAccessDataService.likesCard(cardId);
 
     const cardLikes = card.likes.find((id) => id === user._id);
 
     if (!cardLikes) {
       card.likes.push(user._id);
       console.log(chalk.greenBright(`${card.title} liked!`));
-  res
-  .status(200)
-  .json({ message: `${card.title} liked!`, likes: card.likes.length });
-    
+      res
+        .status(200)
+        .json({ message: `${card.title} liked!`, likes: card.likes.length });
     } else {
       const cardFiltered = card.likes.filter((id) => id !== user._id);
       card.likes = cardFiltered;
       console.log(chalk.greenBright(`${card.title} uNliked!`));
-res
-  .status(200)
-  .json({ message: `${card.title} uNliked!`, likes: card.likes.length });
+      res
+        .status(200)
+        .json({ message: `${card.title} uNliked!`, likes: card.likes.length });
     }
     card = await card.save();
   } catch (err) {
@@ -145,12 +145,10 @@ res
   }
 });
 
-
-
 router.get("/my-cards", authmw, async (req, res) => {
   try {
     const userId = req.userData._id;
-    const userCards = await cardServiceModel.myCards(userId);
+    const userCards = await cardAccessDataService.myCards(userId);
 
     res.json(userCards);
   } catch (err) {

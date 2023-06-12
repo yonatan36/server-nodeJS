@@ -17,7 +17,7 @@ const getcardById = (id) => {
 };
 
 //deleted
-const delateCard = (id) => {
+const deleteCard = (id) => {
   return Card.findByIdAndDelete(id);
 };
 
@@ -52,7 +52,7 @@ module.exports = {
   createCard,
   getAllCards,
   getcardById,
-  delateCard,
+  deleteCard,
   updateCard,
   getCardByBizNumber,
   likesCard,

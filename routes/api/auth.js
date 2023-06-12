@@ -3,6 +3,7 @@ const bcrypt = require("../../config/bcrypt");
 const router = express.Router();
 const usersValidationServise = require("../../validation/usersValidationServise");
 const idValidationServise = require("../../validation/idValidationService");
+const userAccessDataService = require("../../model/users/models/userAccessData");
 const normalizeUser = require("../../model/users/helpers/normalizationUser");
 const usersServiceModel = require("../../model/users/usersService");
 const chalk = require("chalk");
@@ -20,7 +21,7 @@ router.post("/register", async (req, res) => {
     );
     req.body.password = await bcrypt.generateHash(req.body.password);
     req.body = normalizeUser(req.body);
-    await usersServiceModel.registerUser(req.body);
+    await userAccessDataService.registerUser(req.body);
     console.log(chalk.greenBright("register!"));
     res.json(register).status(200);
   } catch (err) {
@@ -33,7 +34,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     await usersValidationServise.loginUserValidation(req.body);
-    const userData = await usersServiceModel.getUserByEmail(req.body.email);
+    const userData = await userAccessDataService.getUserByEmail(req.body.email);
     if (!userData) {
       console.log("invalid email or password");
       throw new CustomError("invalid email and/or password");
@@ -65,11 +66,12 @@ router.put(
 
   async (req, res) => {
     try {
+        req.body = normalizeUser(req.body, req.userData._id);
       const id = req.params.id;
-      await idValidationServise.idValidation(id);
+     
       await usersValidationServise.registerUserValidation(req.body);
-      let updateNormalUser = await normalizeUser(req.body, req.userData._id);
-      const updateUser = await usersServiceModel.updateUser(
+       await normalizeUser(req.body, req.userData._id);
+      const updateUser = await userAccessDataService.updateUser(
         id,
         updateNormalUser
       );
@@ -96,7 +98,7 @@ router.get(
   permissionsMiddleware(false, true, false),
   async (req, res) => {
     try {
-      const getAll = await usersServiceModel.getUsers(req.body);
+      const getAll = await userAccessDataService.getUsers(req.body);
       console.log(chalk.greenBright("get users!"));
       res.json(getAll);
     } catch (err) {
@@ -114,7 +116,7 @@ router.get(
   permissionsMiddleware(false, true, true),
   async (req, res) => {
     try {
-      const getUser = await usersServiceModel.getUser(req.params.id);
+      const getUser = await userAccessDataService.getUser(req.params.id);
       console.log(chalk.greenBright("get user!"));
       res.json(getUser);
     } catch (err) {
@@ -134,7 +136,7 @@ router.delete(
     try {
       const id = req.params.id;
       await idValidationServise.idValidation(id);
-      const dataFromDb = await usersServiceModel.deleteUser(id);
+      const dataFromDb = await userAccessDataService.deleteUser(id);
       console.log(chalk.greenBright("user deleted!"));
       res.json({
         msg: `user - ${dataFromDb.name.firstName} ${dataFromDb.name.lastName} deleted`,
@@ -154,8 +156,11 @@ router.patch(
     try {
       const id = req.params.id;
       await idValidationServise.idValidation(id);
-      await usersServiceModel.updateBizUser(id);
-      res.json({ msg: "done" });
+      const updateUser = await userAccessDataService.updateBizUser(id);
+
+      res.json(
+        `${updateUser.name.firstName} ${updateUser.name.lastName}  isBusiness - ${updateUser.isBusiness}`
+      );
     } catch (err) {
       res.json(err).status(400);
       console.log(chalk.redBright(err.message));
