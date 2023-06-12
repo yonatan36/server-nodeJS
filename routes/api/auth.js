@@ -63,15 +63,16 @@ router.post("/login", async (req, res) => {
 router.put(
   "/:id",
   authmw,
-
+  permissionsMiddleware(true, true, true),
   async (req, res) => {
     try {
-        req.body = normalizeUser(req.body, req.userData._id);
+      req.body.password = await bcrypt.generateHash(req.body.password);
+      let updateNormalUser = await normalizeUser(req.body, req.userData._id);
       const id = req.params.id;
-     
+      await idValidationServise.idValidation(id);
       await usersValidationServise.registerUserValidation(req.body);
-       await normalizeUser(req.body, req.userData._id);
-      const updateUser = await userAccessDataService.updateUser(
+      updateNormalUser = await normalizeUser(req.body, req.userData._id);
+      const updateUser = await usersServiceModel.updateUser(
         id,
         updateNormalUser
       );

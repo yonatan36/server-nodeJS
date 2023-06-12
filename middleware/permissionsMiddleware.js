@@ -1,49 +1,77 @@
-const CustomError = require("../utils/CustomError");
 const { getcardById } = require("../model/cards/cardServies");
+const { getUser } = require("../model/users/usersService");
+class CustomError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+    this.name = "CustomError";
+  }
+}
 
+const handleError = (res, message, statusCode) => {
+  const error = new CustomError(message, statusCode);
+  res.status(error.statusCode).json({
+    error: {
+      message: error.message,
+    },
+  });
+};
 
-
-const checkIfBizOwner = async (iduser, idcard, res, next) => {
+const checkIsOwner = async (res, next, idUser, idCard) => {
   try {
-    const cardData = await getcardById(idcard);
-    
+    const cardData = await getcardById(idCard);
+    console.log(cardData.user_id.toHexString());
+    console.log(idUser);
     if (!cardData) {
-      return res.status(400).json({ msg: "card not found" });
+      handleError(res, "card not found", 400);
     }
-    if (cardData.user_id == iduser) {
-      next();
+    if (cardData.user_id.toHexString() === idUser) {
+      return next();
     } else {
-      res.status(401).json({ msg: "you not the biz owner" });
+      handleError(res, "not authorized", 401);
     }
   } catch (err) {
-    res.status(400).json(err);
+    handleError(res, err.message, 401);
   }
 };
 
-/*
-  isBiz = every biz
-  isAdmin = is admin
-  isBizOwner = biz owner
-*/
+const checkIsUser = async (res, next, idToken, idParam) => {
+  try {
+    const userData = await getUser(idToken);
+    if (!userData) {
+      handleError(res, "user not found", 400);
+    }
+    if (userData._id.toHexString() === idParam) {
+      return next();
+    } else {
+      handleError(res, "not authorized", 401);
+    }
+  } catch (err) {
+    handleError(res, err.message, 401);
+  }
+};
 
-const permissionsMiddleware = (isBiz, isAdmin, isBizOwner) => {
-  return (req, res, next) => {
+const permissionsMiddleware = (isAdmin, isBiz, isOwner) => {
+  const permissionsMiddleware2 = async (req, res, next) => {
     if (!req.userData) {
-      throw new CustomError("must provide userData");
+      handleError(res, "must provide userData", 400);
     }
-    if (isBiz === req.userData.isBusiness && isBiz === true) {
+    if (isBiz && req.userData.isBiz) {
       return next();
     }
-    if (isAdmin === req.userData.isAdmin && isAdmin === true) {
+    if (isAdmin && req.userData.isAdmin) {
       return next();
     }
-    if (isBizOwner === req.userData.isBusiness && isBizOwner === true) {
-      return checkIfBizOwner(req.userData._id, req.params.id, res, next);
+    if (isOwner) {
+      if (req.baseUrl.includes("cards")) {
+        return checkIsOwner(res, next, req.userData._id, req.params.id);
+      } else {
+        return checkIsUser(res, next, req.userData._id, req.params.id);
+      }
     }
-    res
-      .status(401)
-      .json({ msg: "you not allowed to /edit/delete/create this" });
+    handleError(res, "you are not allowed to do that action", 401);
   };
+  return permissionsMiddleware2;
 };
 
 module.exports = permissionsMiddleware;
