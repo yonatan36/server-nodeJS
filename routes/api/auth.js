@@ -4,8 +4,8 @@ const router = express.Router();
 const usersValidationServise = require("../../validation/usersValidationServise");
 const idValidationServise = require("../../validation/idValidationService");
 const userAccessDataService = require("../../model/users/models/userAccessData");
-const normalizeUser = require("../../model/users/helpers/normalizationUser");
 const usersServiceModel = require("../../model/users/usersService");
+const normalizeUser = require("../../model/users/helpers/normalizationUser");
 const chalk = require("chalk");
 const jwt = require("../../config/jwt");
 const CustomError = require("../../utils/CustomError");
@@ -13,6 +13,7 @@ const permissionsMiddleware = require("../../middleware/permissionsMiddleware");
 const authmw = require("../../middleware/authMiddleware");
 
 //http://localhost:8181/api/auth/register
+//register
 router.post("/register", async (req, res) => {
   try {
     req.body = normalizeUser(req.body);
@@ -31,6 +32,7 @@ router.post("/register", async (req, res) => {
 });
 
 //http://localhost:8181/api/auth/login
+//login
 router.post("/login", async (req, res) => {
   try {
     await usersValidationServise.loginUserValidation(req.body);
@@ -152,7 +154,6 @@ router.delete(
 router.patch(
   "/:id",
   authmw,
-  //  permissionsMiddleware(true, false, true),
   async (req, res) => {
     try {
       const id = req.params.id;

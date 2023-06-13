@@ -72,8 +72,7 @@ router.get(
         res.json(userCards);
       }
     } catch (err) {
-      console.log(chalk.red("Failed to retrieve user cards:"));
-      console.error(err);
+      console.log(err);
       res.status(400).json(err);
     }
   }
@@ -98,7 +97,6 @@ router.get("/", authmw, async (req, res) => {
 router.get("/:id", authmw, async (req, res) => {
   try {
     const id = req.params.id;
-    await cardsValidationServise.createCardValidation();
     await idValidationServise.idValidation(id);
     const findCardByiD = await cardAccessDataService.getcardById(id);
     console.log(chalk.greenBright("get card!"));
