@@ -56,20 +56,20 @@ To run the project, follow these steps:
 
 ```json
 {
-"name":{
-"firstName":"kenny",
-"lastName":"jonson"
-},
-,"phone":"0500000000",
-"email":"kenny@gmail.com",
-"password":"Aa123456!",
-"address":{
-"country":"Israel",
-"city":"Ashkeluna",
-"street":"nof ha hof",
-"houseNumber":255
-},
-"isBusiness":true
+  "name": {
+    "firstName": "kenny",
+    "lastName": "jonson"
+  },
+  "phone": "0500000000",
+  "email": "kenny@gmail.com",
+  "password": "Aa123456!",
+  "address": {
+    "country": "Israel",
+    "city": "Ashkeluna",
+    "street": "nof ha hof",
+    "houseNumber": 255
+  },
+  "isBusiness": true
 }
 ```
 
