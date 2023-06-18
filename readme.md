@@ -49,9 +49,9 @@ To run the project, follow these steps:
     }
 
 }
-
+```
 ## user object
-
+```json
 {
 "name":{
 "firstName":"kenny",
@@ -68,14 +68,17 @@ To run the project, follow these steps:
 },
 "isBusiness":true
 }
+```
 
 
 ## login object
+```json
 {
 "email": "admin@gmail.com",
 "password": "Aa123456!"
 }
 ```
+
 
 ## Contact
 
