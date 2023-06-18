@@ -12,7 +12,7 @@ const CustomError = require("../../utils/CustomError");
 const permissionsMiddleware = require("../../middleware/permissionsMiddleware");
 const authmw = require("../../middleware/authMiddleware");
 
-//http://localhost:8181/api/auth/register
+//http://localhost:8181/api/users/register
 //register
 router.post("/register", async (req, res) => {
   try {
@@ -37,7 +37,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-//http://localhost:8181/api/auth/login
+//http://localhost:8181/api/users/login
 //login
 router.post("/login", async (req, res) => {
   try {
@@ -68,7 +68,7 @@ router.post("/login", async (req, res) => {
     console.log(err.message);
   }
 });
-//http://localhost:8181/api/auth/:id
+//http://localhost:8181/api/users/:id
 //update user
 router.put(
   "/:id",
@@ -100,7 +100,7 @@ router.put(
   }
 );
 
-//http://localhost:8181/api/auth
+//http://localhost:8181/users/auth
 //get all users
 router.get(
   "/",
@@ -118,7 +118,7 @@ router.get(
   }
 );
 
-//http://localhost:8181/api/auth/:id
+//http://localhost:8181/api/users/:id
 //get user
 router.get(
   "/:id",
@@ -136,7 +136,7 @@ router.get(
   }
 );
 
-//http://localhost:8181/api/auth/:id
+//http://localhost:8181/api/users/:id
 //delete user
 router.delete(
   "/:id",
@@ -168,7 +168,8 @@ router.delete(
 );
 
 
-
+//http://localhost:8181/api/users/:id
+//update user
 router.patch(
   "/:id",
   authmw,
