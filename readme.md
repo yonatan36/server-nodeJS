@@ -1,6 +1,6 @@
 # Server nodejs
 
-The project aims to create a web application called "yoyo" that allows users to manage and share digital business cards.
+The project aims to create a requst API to server application using Node.js that incorporates various technologies and libraries for enhanced functionality.
 
 ## The project was built using the following technologies:
 
@@ -19,15 +19,18 @@ The project aims to create a web application called "yoyo" that allows users to 
 
 To run the project, follow these steps:
 
-1. Extract the folder from the provided zip file and after Navigate to the extracted project folder.
+1. Extract the folder from the provided zip file and navigate to the extracted project folder.
 2. Open the project in your preferred code editor.
 3. Install the required packages by running the command `npm install`.
-4. Make sure that the data base was created in the mongodb.
-5. In VSCode,you can run in two environments the first environment development start the server: using the command `npm run dev` the seconed is environment production using the command `npm start` .
+4. Make sure that the database was created in MongoDB.
+5. In VSCode, you can run the project in two environments: development and production.
+   - For the development environment, start the server using the command `npm run dev`.
+   - For the production environment, start the server using the command `npm start`.
+
 6. Welcome! access the server now you can use poostman to checked the requests you can find all the requests in folder routs/api .
 
-# card object
-
+## card object
+```json
 {
 "title": "card1",
 "subTitle": "sub card 1",
@@ -47,7 +50,7 @@ To run the project, follow these steps:
 
 }
 
-# user object
+## user object
 
 {
 "name":{
@@ -66,13 +69,13 @@ To run the project, follow these steps:
 "isBusiness":true
 }
 
-# login object
 
+## login object
 {
 "email": "admin@gmail.com",
 "password": "Aa123456!"
 }
-
+```
 
 ## Contact
 
