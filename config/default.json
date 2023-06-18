@@ -1,8 +1,6 @@
 {
     "validatorOption": "Joi",
     "dbOption": "mongo",
-    "hashOption": "bycript",
-    "tokenOption": "jwt",
     "logger": "morgan",
       "jwtKey": "YourPrivateKeyVer3"
 }

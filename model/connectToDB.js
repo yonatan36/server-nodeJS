@@ -1,3 +1,6 @@
+const config = require("config");
 const mongoose = require("mongoose");
 
-module.exports = mongoose.connect("mongodb://127.0.0.1:27017/bizcardDB");
+console.log("con str", config.get("dbConfig.url"));
+
+module.exports = mongoose.connect(config.get("dbConfig.url"));

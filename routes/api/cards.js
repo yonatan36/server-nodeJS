@@ -35,7 +35,7 @@ router.post(
 router.put(
   "/:id",
   authmw,
-  permissionsMiddleware(false, true, true),
+  permissionsMiddleware(false, false, true),
   async (req, res) => {
     try {
       const id = req.params.id;
@@ -60,7 +60,7 @@ router.put(
 router.get(
   "/my-cards",
   authmw,
-  permissionsMiddleware(false, false, true),
+
   async (req, res) => {
     try {
       const userId = req.userData._id;
@@ -112,18 +112,18 @@ router.get("/:id", authmw, async (req, res) => {
 router.delete(
   "/:id",
   authmw,
-  permissionsMiddleware(false, true, true),
+  permissionsMiddleware(true, false, true),
   async (req, res) => {
     try {
       const id = req.params.id;
       await idValidationServise.idValidation(id);
       const dataFromDb = await cardAccessDataService.deleteCard(id);
-
+      if (!dataFromDb) {
+        console.log(chalk.redBright("Could not find the card"));
+        return res.status(404).json({ msg: "Could not find the card" });
+      }
       console.log(chalk.greenBright(`card - ${dataFromDb.title} deleted!`));
-      res.status(200).send({ msg: `card - ${dataFromDb.title} deleted!` });
-
-      console.log(chalk.redBright("could not find the card"));
-      res.json({ msg: "could not find the card" });
+      res.status(200).json({ msg: `card - ${dataFromDb.title} deleted!` });
     } catch (err) {
       res.status(400).json(err.message);
       console.log(err.message);

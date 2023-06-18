@@ -20,13 +20,19 @@ router.post("/register", async (req, res) => {
     const register = await usersValidationServise.registerUserValidation(
       req.body
     );
+    const unicq = await userAccessDataService.getUserByEmail(req.body.email);
+    if (unicq) {
+      return res.status(400).json({ msg: "Email already exists" });
+    }
+
     req.body.password = await bcrypt.generateHash(req.body.password);
     req.body = normalizeUser(req.body);
     await userAccessDataService.registerUser(req.body);
+
     console.log(chalk.greenBright("register"));
-    res.json(register).status(200);
+    res.status(200).json(register);
   } catch (err) {
-    res.json(err).status(400);
+    res.json(err.message).status(400);
     console.log(chalk.redBright(err.message));
   }
 });
@@ -39,7 +45,7 @@ router.post("/login", async (req, res) => {
     const userData = await userAccessDataService.getUserByEmail(req.body.email);
     if (!userData) {
       console.log("invalid email or password");
-      throw new CustomError("invalid email and/or password");
+      return res.status(400).json({ msg: "invalid email and/or password" });
     }
     const isPasswordMatch = await bcrypt.cmpHash(
       req.body.password,
@@ -47,8 +53,9 @@ router.post("/login", async (req, res) => {
     );
     if (!isPasswordMatch) {
       console.log("invalid email or password");
-      throw new CustomError("invalid email and/or password");
+      return res.status(400).json({ msg: "invalid email and/or password" });
     }
+
     const token = await jwt.generateToken({
       _id: userData._id,
       isAdmin: userData.isAdmin,
@@ -103,9 +110,9 @@ router.get(
     try {
       const getAll = await userAccessDataService.getUsers(req.body);
       console.log(chalk.greenBright("get all users!"));
-      res.json(getAll);
+      res.status(200).json(getAll);
     } catch (err) {
-      res.json(err).status(400);
+      res.status(400).json(err);
       console.log(chalk.redBright(err.message));
     }
   }
@@ -121,9 +128,9 @@ router.get(
     try {
       const getUser = await userAccessDataService.getUser(req.params.id);
       console.log(chalk.greenBright("get user!"));
-      res.json(getUser);
+      res.status(200).json(getUser);
     } catch (err) {
-      res.json(err).status(400);
+      res.status(400).json(err);
       console.log(chalk.redBright(err.message));
     }
   }
@@ -134,37 +141,51 @@ router.get(
 router.delete(
   "/:id",
   authmw,
-  permissionsMiddleware(false, false, true),
+  permissionsMiddleware(true, false, true),
   async (req, res) => {
     try {
       const id = req.params.id;
       await idValidationServise.idValidation(id);
       const dataFromDb = await userAccessDataService.deleteUser(id);
-      console.log(chalk.greenBright("user deleted!"));
-      res.json({
+
+            if (!dataFromDb) {
+              console.log(chalk.redBright("Could not find the user"));
+              return res.status(404).json({ msg: "Could not find the user" });
+            }
+      console.log(
+        chalk.greenBright(
+          `user - ${dataFromDb.name.firstName} ${dataFromDb.name.lastName} deleted`
+        )
+      );
+      res.status(200).json({
         msg: `user - ${dataFromDb.name.firstName} ${dataFromDb.name.lastName} deleted`,
       });
     } catch (err) {
-      res.json(err).status(400);
+      res.status(400).json(err.message);
       console.log(chalk.redBright(err.message));
     }
   }
 );
 
+
+
 router.patch(
   "/:id",
   authmw,
+  permissionsMiddleware(false, false, true),
   async (req, res) => {
     try {
       const id = req.params.id;
       await idValidationServise.idValidation(id);
       const updateUser = await userAccessDataService.updateBizUser(id);
       console.log(chalk.greenBright("isBusiness update"));
-      res.json(
-        `${updateUser.name.firstName} ${updateUser.name.lastName}  isBusiness - ${updateUser.isBusiness}`
-      );
+      res
+        .status(200)
+        .json(
+          `${updateUser.name.firstName} ${updateUser.name.lastName}  isBusiness - ${updateUser.isBusiness}`
+        );
     } catch (err) {
-      res.json(err).status(400);
+      res.status(400).json(err);
       console.log(chalk.redBright(err.message));
     }
   }

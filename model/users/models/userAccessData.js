@@ -11,6 +11,7 @@ const registerUser = (userData) => {
   }
 };
 
+
 const getUserByEmail = (email) => {
   switch (dbOption) {
     case "mongo":

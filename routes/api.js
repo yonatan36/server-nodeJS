@@ -10,7 +10,7 @@ router.get("/", (req, res) => {
 });
 
 //http://localhost:8181/api/auth
-router.use("/auth", authRouter)
+router.use("/users", authRouter)
 
 //http://localhost:8181/api/cards
 router.use("/cards", cardsRouter)
