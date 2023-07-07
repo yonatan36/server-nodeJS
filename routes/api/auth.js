@@ -8,7 +8,6 @@ const usersServiceModel = require("../../model/users/usersService");
 const normalizeUser = require("../../model/users/helpers/normalizationUser");
 const chalk = require("chalk");
 const jwt = require("../../config/jwt");
-const CustomError = require("../../utils/CustomError");
 const permissionsMiddleware = require("../../middleware/permissionsMiddleware");
 const authmw = require("../../middleware/authMiddleware");
 
@@ -24,16 +23,12 @@ router.post("/register", async (req, res) => {
     if (unicq) {
       return res.status(400).json({ msg: "Email already exists" });
     }
-
     req.body.password = await bcrypt.generateHash(req.body.password);
     req.body = normalizeUser(req.body);
     await userAccessDataService.registerUser(req.body);
-
-    console.log(chalk.greenBright("register"));
     res.status(200).json(register);
   } catch (err) {
     res.json(err.message).status(400);
-    console.log(chalk.redBright(err.message));
   }
 });
 
@@ -44,7 +39,6 @@ router.post("/login", async (req, res) => {
     await usersValidationServise.loginUserValidation(req.body);
     const userData = await userAccessDataService.getUserByEmail(req.body.email);
     if (!userData) {
-      console.log("invalid email or password");
       return res.status(400).json({ msg: "invalid email and/or password" });
     }
     const isPasswordMatch = await bcrypt.cmpHash(
@@ -52,7 +46,6 @@ router.post("/login", async (req, res) => {
       userData.password
     );
     if (!isPasswordMatch) {
-      console.log("invalid email or password");
       return res.status(400).json({ msg: "invalid email and/or password" });
     }
 
@@ -62,7 +55,6 @@ router.post("/login", async (req, res) => {
       isBusiness: userData.isBusiness,
     });
     res.status(200).json({ token: token });
-    console.log(chalk.greenBright("login"));
   } catch (err) {
     res.status(400).json(err.message);
     console.log(err.message);
@@ -88,11 +80,6 @@ router.put(
       res.status(200).json({
         msg: `user - ${updateUser.name.firstName} ${updateUser.name.lastName} update!`,
       });
-      console.log(
-        chalk.greenBright(
-          `user - ${updateUser.name.firstName} ${updateUser.name.lastName} update!`
-        )
-      );
     } catch (err) {
       console.log(err.message);
       res.status(400).json({ error: err.message });
@@ -109,7 +96,7 @@ router.get(
   async (req, res) => {
     try {
       const getAll = await userAccessDataService.getUsers(req.body);
-      console.log(chalk.greenBright("get all users!"));
+
       res.status(200).json(getAll);
     } catch (err) {
       res.status(400).json(err);
@@ -127,7 +114,7 @@ router.get(
   async (req, res) => {
     try {
       const getUser = await userAccessDataService.getUser(req.params.id);
-      console.log(chalk.greenBright("get user!"));
+
       res.status(200).json(getUser);
     } catch (err) {
       res.status(400).json(err);
@@ -148,15 +135,11 @@ router.delete(
       await idValidationServise.idValidation(id);
       const dataFromDb = await userAccessDataService.deleteUser(id);
 
-            if (!dataFromDb) {
-              console.log(chalk.redBright("Could not find the user"));
-              return res.status(404).json({ msg: "Could not find the user" });
-            }
-      console.log(
-        chalk.greenBright(
-          `user - ${dataFromDb.name.firstName} ${dataFromDb.name.lastName} deleted`
-        )
-      );
+      if (!dataFromDb) {
+        console.log(chalk.redBright("Could not find the user"));
+        return res.status(404).json({ msg: "Could not find the user" });
+      }
+
       res.status(200).json({
         msg: `user - ${dataFromDb.name.firstName} ${dataFromDb.name.lastName} deleted`,
       });
@@ -166,7 +149,6 @@ router.delete(
     }
   }
 );
-
 
 //http://localhost:8181/api/users/:id
 //update user
