@@ -5,8 +5,6 @@ const registerUser = (userData) => {
   return user.save();
 };
 
-
-
 const getUserByEmail = (email) => {
   return User.findOne({ email });
 };
@@ -28,7 +26,6 @@ const getUser = (id) => {
 const deleteUser = (id) => {
   return User.findByIdAndDelete(id);
 };
-
 
 const updateBizUser = (id) => {
   return User.findByIdAndUpdate(

@@ -9,24 +9,40 @@ const updateUserSchema = Joi.object({
     })
     .required(),
   phone: Joi.string()
-    .regex(new RegExp(/0[0-9]{1,2}\-?\s?[0-9]{3}\s?[0-9]{4}/))
-    .required(),
+    .min(9)
+    .regex(/0[0-9]{1,2}\-?\s?[0-9]{3}\s?[0-9]{4}/)
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Invalid phone number format. Please enter a valid phone number. exemple (0534355534)",
+      "string.empty":
+        "Phone number must not be empty. Please provide a phone number.",
+      "any.required":
+        "Phone number is required. Please provide a phone number.",
+    }),
   email: Joi.string()
-    .regex(
-      new RegExp(/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/)
-    )
-    .required(),
+    .regex(/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/)
+    .required()
+    .messages({
+      "string.pattern.base": "Please enter a valid email address",
+      "string.empty":
+        "Email must not be empty. Please provide an email address.",
+      "any.required": "Email is required. Please provide an email address.",
+    }),
   image: Joi.object().keys({
-    url: Joi.string().regex(
-      new RegExp(
+    url: Joi.string()
+      .regex(
         /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/
       )
-    ),
+      .messages({
+        "string.pattern.base": "Please enter a valid URL",
+        "string.empty": "URL must not be empty. Please provide a URL.",
+      }),
     alt: Joi.string().min(2).max(256).required(),
   }),
   address: Joi.object()
     .keys({
-      state: Joi.string().min(2).max(256),
+      state: Joi.string().min(0).max(256).allow(""),
       country: Joi.string().min(2).max(256).required(),
       city: Joi.string().min(2).max(256).required(),
       street: Joi.string().min(2).max(256).required(),
